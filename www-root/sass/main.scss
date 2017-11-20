@@ -1,0 +1,36 @@
+* {
+  border: 1px solid #f00000;
+}
+
+.column {
+  border: 1px;
+}
+
+.flex {
+  display: flex;
+}
+
+.greenbox {
+  background-color: green;
+  width: 100px;
+  height: 100px;
+}
+
+.flextainer {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  align-content: center;
+  width: 100%;
+  height: 100%;
+}
+
+.pattern-block {
+  width: auto;
+  height: 200px;
+  background-color: teal;
+}
+
+.mini-margin {
+  margin: 12px;
+}
