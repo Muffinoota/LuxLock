@@ -10,58 +10,135 @@ let main = (() => {
     return Math.floor(Math.random() * (max - min)) + min; //The maximum is exclusive and the minimum is inclusive
   }
 
-  function setBGColor($el, red, green, blue) {
-    let color = 'rgb(' + red + ', ' + green + ', ' + blue + ')';
-    $el.css('background-color', color);
+  function setBGColor($el, color) {
+    $el.css('background-color', color.getCSSColor());
   }
-
-  // function getSliderVals() {
-  //
-  // }
 
   mod.init = () => {
     console.log('sauce'); //Print to verify it's working
-    let $colorCode = $('.js-lux-code').first();
 
-    let $colorButton = $('#colorButton');
-    $colorButton.click( () => {
-      setBGColor($colorCode, 255, 12, 3);
-    });
-
-
-    let color = {
-      red: 127,
-      green: 127,
-      blue: 127,
+    class Color {
+      constructor(red = 127, green = 127, blue = 127, time = 1000) {
+        this.red = red;
+        this.green = green;
+        this.blue = blue;
+        this.time = time;
+      }
       getCSSColor() {
         return 'rgb(' + this.red + ', ' + this.green + ', ' + this.blue + ')';
       }
+      getColorDiv() {
+        return '<div style="height: 100px; width: 200px; background-color: '
+        + color.getCSSColor() + ';>\
+        </div "> <p>Color: ' + color.getCSSColor() + '<br> \
+        Time: ' + this.time + 'ms</p>';
+      }
+      setTime(time) {
+        this.time = time;
+      }
+      getTime() {
+        return this.time;
+      }
     }
+
+    class ColorCode {
+      constructor() {
+        this.colors = [];
+        this.currentColor = this.colors[0];
+      }
+
+      addColor(color) {
+        this.colors.push(new Color(color.red, color.green, color.blue, color.getTime()));
+      }
+
+      removeColor() {
+        this.colors.pop();
+      }
+
+      clearColors() {
+        this.colors = [];
+      }
+
+      playColors($el) {
+        console.log('gonna play');
+        let i = 0;
+        let startTime = Date.now() - 1;
+        let colors = this.colors;
+        setBGColor($el, colors[0]);
+        let colorPlayer = setInterval(function() {
+          if (Date.now() - startTime > colors[i].getTime()) {
+            console.log('#' + i, ' Color: ', colors[i].getCSSColor(), 'Time: ', colors[i].getTime());
+            console.log(Date.now() - startTime);
+            console.log(colors[i].getTime());
+            setBGColor($el, colors[i+1]);
+            startTime = Date.now();
+            if (i >= colors.length - 2) clearInterval(colorPlayer);
+            i++;
+          }
+        }, 10)
+      }
+
+      toString() {
+        let colors = [];
+        for (let color of this.colors) {
+          colors.push('Color: ' + color.getCSSColor() + ' Time: ' + color.getTime());
+        }
+        return colors;
+      }
+
+    }
+
+    let colorCode = new ColorCode();
+
+    let $colorCode = $('.js-lux-code').first();
+
     let $redSlider = $('#redSlider').first();
+    let $greenSlider = $('#greenSlider').first();
+    let $blueSlider = $('#blueSlider').first();
     $redSlider.on('input', () => {
       color.red = $redSlider.val();
-      setBGColor($colorCode, color.red, color.green, color.blue);
+      setBGColor($colorCode, color);
     });
-
-
-    let $greenSlider = $('#greenSlider').first();
     $greenSlider.on('input', () => {
       color.green = $greenSlider.val();
-      setBGColor($colorCode, color.red, color.green, color.blue);
+      setBGColor($colorCode, color);
     });
-
-    let $blueSlider = $('#blueSlider').first();
     $blueSlider.on('input', () => {
       color.blue = $blueSlider.val();
-      setBGColor($colorCode, color.red, color.green, color.blue);
+      setBGColor($colorCode, color);
     });
 
+    let color = new Color($redSlider.val(), $greenSlider.val(), $blueSlider.val());
+    setBGColor($colorCode, color);
+
+
+    let $colorButton = $('#colorButton');
+    $colorButton.click( () => {
+      colorCode.playColors($colorCode);
+      console.log('clicked');
+    });
+
+
+
+    let timer = 0;
     let $saveColorButton = $('#saveColor');
-    $saveColorButton.click( () => {
-      $('.js-saved-colors').first().append('<div style="height: 240px; width: 240px; background-color: ' + color.getCSSColor() + ';></div ">')
+    $saveColorButton
+    .mousedown(() => {
+      timer = Date.now();
+    })
+    .mouseup(() => {
+      color.time = Date.now() - timer;
+      $('.js-saved-colors').first().append(color.getColorDiv());
+      colorCode.addColor(color);
+      console.log(colorCode.toString());
     });
 
-
+    let $clearColorsButton = $('#clearColors');
+    $clearColorsButton
+    .click(() => {
+      colorCode.clearColors();
+      $('.js-saved-colors').first().html('');
+    });
 
     _initialized = true;
   };
