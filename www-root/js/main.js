@@ -28,10 +28,12 @@ let main = (() => {
         return 'rgb(' + this.red + ', ' + this.green + ', ' + this.blue + ')';
       }
       getColorDiv() {
-        return '<div style="height: 100px; width: 200px; background-color: '
+        return '<div class="flextainer flex">\
+        <div class="colorbox" style="height: 80px; width: 200px; background-color: '
         + color.getCSSColor() + ';>\
         </div "> <p>Color: ' + color.getCSSColor() + '<br> \
-        Time: ' + this.time + 'ms</p>';
+        Time: ' + this.time + 'ms</p>'
+        + '</div>';
       }
       setTime(time) {
         this.time = time;
@@ -118,20 +120,47 @@ let main = (() => {
       console.log('clicked');
     });
 
-
+    function absorbEvent_(event) {
+      var e = event || window.event;
+      e.preventDefault && e.preventDefault();
+      e.stopPropagation && e.stopPropagation();
+      e.cancelBubble = true;
+      e.returnValue = false;
+      return false;
+    }
 
     let timer = 0;
+    let buttonPause = 0;
     let $saveColorButton = $('#saveColor');
     $saveColorButton
     .mousedown(() => {
+      if (buttonPause - Date.now() < 50) {
+        console.log(buttonPause - Date.now());
+      } else timer = Date.now();
+    })
+    .on('touchstart', () => {
       timer = Date.now();
     })
-    .mouseup(() => {
+    .on('touchend', () => {
+      buttonPause = Date.now();
       color.time = Date.now() - timer;
       $('.js-saved-colors').first().append(color.getColorDiv());
       colorCode.addColor(color);
       console.log(colorCode.toString());
-    });
+    })
+    .mouseup(() => {
+      if (buttonPause - Date.now() < 50) {
+        console.log(buttonPause - Date.now());
+      }
+      else {
+        color.time = Date.now() - timer;
+        $('.js-saved-colors').first().append(color.getColorDiv());
+        colorCode.addColor(color);
+        console.log(colorCode.toString());
+      }
+    })
+    .on('touchmove', absorbEvent_)
+    .on('touchcancel', absorbEvent_);
 
     let $clearColorsButton = $('#clearColors');
     $clearColorsButton

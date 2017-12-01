@@ -10,6 +10,10 @@ class ColorCode extends View {
       blue: 50
     };
   }
+
+  saveColor() {
+
+  }
     render() {
       return (
         <View>
@@ -53,6 +57,7 @@ class ColorCode extends View {
               height = {50}
               onValueChange = {(value) => this.setState({blue: value})}
           />
+
         </View>
       )
     }
