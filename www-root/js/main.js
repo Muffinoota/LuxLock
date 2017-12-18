@@ -28,10 +28,11 @@ let main = (() => {
         return 'rgb(' + this.red + ', ' + this.green + ', ' + this.blue + ')';
       }
       getColorDiv() {
+        console.log('Getting color div');
         return '<div class="flextainer flex">\
         <div class="colorbox" style="height: 80px; width: 200px; background-color: '
-        + color.getCSSColor() + ';>\
-        </div "> <p>Color: ' + color.getCSSColor() + '<br> \
+        + this.getCSSColor() + ';>\
+        </div "> <p>Color: ' + this.getCSSColor() + '<br> \
         Time: ' + this.time + 'ms</p>'
         + '</div>';
       }
@@ -135,7 +136,7 @@ let main = (() => {
     $saveColorButton
     .mousedown(() => {
       if (buttonPause - Date.now() < 50) {
-        console.log(buttonPause - Date.now());
+        timer = Date.now();
       } else timer = Date.now();
     })
     .on('touchstart', () => {
@@ -170,6 +171,18 @@ let main = (() => {
     });
 
     _initialized = true;
+    let defaults = [
+      new Color(255, 0, 0, 500),
+      new Color(0, 255, 0, 1000),
+      new Color(255, 0, 0, 500),
+      new Color(0, 0, 255, 1000)
+    ];
+    console.log(defaults);
+    for (let i = 0; i < defaults.length; i++) {
+      colorCode.addColor(defaults[i]);
+      $('.js-saved-colors').first().append(defaults[i].getColorDiv());
+      console.log(defaults[0].getCSSColor());
+    }
   };
 
 
